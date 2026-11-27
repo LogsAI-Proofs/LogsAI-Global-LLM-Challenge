@@ -1,6 +1,26 @@
 # LogsAI Global LLM Challenge — 存证仓库
 
-本仓库存放 LogsAI 全球大模型挑战赛（泛化性与确定性基准测试）的审计输出哈希存证。
+本仓库存放 LogsAI 全球大模型挑战赛（泛化性与确定性基准测试）的审计输出哈希存证，以及公开行业池快照。
+
+## 行业池快照（冻结）
+
+| 文件 | 说明 |
+|---|---|
+| `pool_cn.json` | A 股行业池快照：5,223 家，11 个 GICS Sector |
+| `pool_us.json` | 美股行业池快照：6,506 家，仅纳入 SEC 10-K 公司 |
+| `pool_manifest.json` | 冻结清单：算法哈希、GICS 哈希、两份池哈希 |
+| `sampling.py` | 盲抽算法：11 个分类各 1 家 + 补充抽取 1 家 = 12 家 |
+| `verify_pool.py` | 公开校验/复算脚本 |
+| `POOL_BUILD.md` | 池构建口径与复算说明 |
+
+```bash
+# 校验两份池的哈希
+python verify_pool.py verify all
+
+# 用给定 seed 复算 12 家
+python verify_pool.py draw cn "上证指数收盘价-20261127"
+python verify_pool.py draw us "标普500收盘价-20261127"
+```
 
 ## 完成判定与存证机制
 

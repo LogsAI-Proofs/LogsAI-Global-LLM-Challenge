@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "frozen_at": "2026-11-27",
+  "rule": {
+    "cn": "全部 A 股，申万一级行业→GICS；11 个 Sector",
+    "us": "SIC 可映射 GICS + 有 SEC 10-K；20-F/40-F、无 SIC、无 10-K 不纳入"
+  },
+  "algorithm": {
+    "file": "sampling.py",
+    "sha256": "5e36b40208398691a93703f1c4bde9767bf4a0e2ed6f1df164b054a2b7b04539"
+  },
+  "gics_mapping": {
+    "file": "gics_mapping.json",
+    "sha256": "5ff66ab5a26eb02af768ad455121c5000918a9bc29387b686a42d3941ba6918d"
+  },
+  "pools": {
+    "cn": {
+      "file": "pool_cn.json",
+      "total": 5223,
+      "pool_sha256": "43703bcc8012a10a468fa2aaebabec6f18af0d1db5787cdb4ea123e009afa6ae",
+      "sector_counts": {
+        "能源": 80,
+        "材料": 670,
+        "工业": 1481,
+        "可选消费": 852,
+        "必需消费": 225,
+        "医疗保健": 480,
+        "金融": 120,
+        "信息技术": 832,
+        "通信服务": 251,
+        "公用事业": 137,
+        "房地产": 95
+      }
+    },
+    "us": {
+      "file": "pool_us.json",
+      "total": 6506,
+      "pool_sha256": "f117a767a0dce0b6bb1183deae54cdcfecd907c76b7fd47a71ee3022d06637a2",
+      "sector_counts": {
+        "能源": 243,
+        "材料": 909,
+        "工业": 525,
+        "可选消费": 759,
+        "必需消费": 148,
+        "医疗保健": 403,
+        "金融": 2122,
+        "信息技术": 952,
+        "通信服务": 115,
+        "公用事业": 234,
+        "房地产": 96
+      }
+    }
+  }
+}
