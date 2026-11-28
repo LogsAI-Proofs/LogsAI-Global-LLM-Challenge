@@ -20,7 +20,12 @@ python verify_pool.py verify all
 # 用给定 seed 复算 12 家
 python verify_pool.py draw cn "上证指数收盘价-20261127"
 python verify_pool.py draw us "标普500收盘价-20261127"
+
+# 赛事日：校验 draw manifest（池/算法/清单哈希 + 按 seed 独立复算）
+python verify_pool.py verify-manifest all
 ```
+
+`draw_manifest.schema.json` 定义赛事日 `draw_manifest_cn.json` / `draw_manifest_us.json` 的结构。
 
 ## 完成判定与存证机制
 

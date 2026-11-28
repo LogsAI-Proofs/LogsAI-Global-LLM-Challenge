@@ -48,9 +48,49 @@ def draw(channel: str, seed: str):
         print(f"  {i:02d}. {c}  ({company_ids[i-1]})")
 
 
+def verify_manifest(channel: str):
+    """校验 draw_manifest_{channel}.json：池/算法/清单哈希 + 用 seed 独立复算。"""
+    mf = BASE / f'draw_manifest_{channel}.json'
+    if not mf.exists():
+        raise SystemExit(f"[FAIL] {channel}: manifest 不存在 ({mf.name})")
+    m = json.loads(mf.read_text(encoding='utf-8'))
+    d = load_pool(channel)
+    identity_map = d.get('ticker_cik') if channel == 'us' else None
+    errors = []
+
+    if (m.get('pool') or {}).get('pool_sha256') != d['pool_sha256']:
+        errors.append('pool_sha256 mismatch')
+    algo = hashlib.sha256((BASE / 'sampling.py').read_bytes()).hexdigest()
+    if (m.get('algorithm') or {}).get('sha256') != algo:
+        errors.append('algorithm sha256 mismatch')
+
+    companies = m.get('companies') or []
+    if len(companies) != 12 or len(set(companies)) != 12:
+        errors.append(f'companies 非 12 家唯一 (n={len(companies)})')
+    if canonical_sha256(companies) != m.get('list_sha256'):
+        errors.append('list_sha256 mismatch')
+
+    company_ids = [(identity_map or {}).get(c, c) for c in companies]
+    if len(set(company_ids)) != 12:
+        errors.append('company_ids 非 12 个唯一企业')
+    if company_ids != m.get('company_ids'):
+        errors.append('company_ids 与 companies 的 CIK 映射不符')
+
+    seed_string = (m.get('seed') or {}).get('seed_string', '')
+    expected = stratified_sample(d['pool'], seed_string, identity_map=identity_map)
+    if expected != companies:
+        errors.append('按 seed 复算的清单与 manifest 不一致')
+
+    if errors:
+        print(f"[FAIL] {channel} manifest: " + '; '.join(errors))
+        raise SystemExit(1)
+    print(f"[OK] {channel} manifest: seed={seed_string} "
+          f"list_sha256={m['list_sha256']} companies={len(companies)}")
+
+
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
-    ap.add_argument('action', choices=['verify', 'draw'])
+    ap.add_argument('action', choices=['verify', 'draw', 'verify-manifest'])
     ap.add_argument('channel', choices=['cn', 'us', 'all'])
     ap.add_argument('seed', nargs='?', default='')
     args = ap.parse_args()
@@ -58,6 +98,9 @@ if __name__ == '__main__':
     if args.action == 'verify':
         for ch in (['cn', 'us'] if args.channel == 'all' else [args.channel]):
             verify(ch)
+    elif args.action == 'verify-manifest':
+        for ch in (['cn', 'us'] if args.channel == 'all' else [args.channel]):
+            verify_manifest(ch)
     else:
         if not args.seed:
             raise SystemExit("draw 需要 seed")

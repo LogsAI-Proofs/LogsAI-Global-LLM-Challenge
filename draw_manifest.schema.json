@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/LogsAI-Proofs/LogsAI-Global-LLM-Challenge/main/draw_manifest.schema.json",
+  "title": "LogsAI Global LLM Challenge — Draw Manifest",
+  "description": "赛事日公开抽签清单。由 draw_event_day.py 生成，可用 verify_pool.py verify-manifest <cn|us> 复算校验。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "channel",
+    "draw_date",
+    "seed",
+    "pool",
+    "algorithm",
+    "companies",
+    "company_ids",
+    "unique_companies",
+    "sectors_first_11",
+    "list_sha256",
+    "created_at"
+  ],
+  "properties": {
+    "channel": {
+      "enum": ["cn", "us"]
+    },
+    "draw_date": {
+      "type": ["string", "null"],
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "seed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "raw_value", "seed_string", "quote_date", "sources", "fetched_at"],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "raw_value": {
+          "type": "number"
+        },
+        "seed_string": {
+          "type": "string",
+          "pattern": "^(上证指数收盘价|标普500收盘价)-[0-9]+(\\.[0-9]+)?$"
+        },
+        "quote_date": {
+          "type": ["string", "null"]
+        },
+        "fetched_at": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "value", "quote_date", "quote_time", "raw_sha256"],
+            "properties": {
+              "source": {
+                "type": "string"
+              },
+              "value": {
+                "type": "number"
+              },
+              "quote_date": {
+                "type": ["string", "null"]
+              },
+              "quote_time": {
+                "type": ["string", "null"]
+              },
+              "raw_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "pool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "total", "pool_sha256"],
+      "properties": {
+        "file": {
+          "enum": ["pool_cn.json", "pool_us.json"]
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pool_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "algorithm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256"],
+      "properties": {
+        "file": {
+          "const": "sampling.py"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "companies": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "company_ids": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "unique_companies": {
+      "const": 12
+    },
+    "sectors_first_11": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 11,
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "list_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "created_at": {
+      "type": "string"
+    }
+  }
+}
