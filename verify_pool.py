@@ -40,10 +40,12 @@ def verify(channel: str):
 
 def draw(channel: str, seed: str):
     d = load_pool(channel)
-    companies = stratified_sample(d['pool'], seed)
-    print(f"{channel} seed={seed} selected={len(companies)}")
+    identity_map = d.get('ticker_cik') if channel == 'us' else None
+    companies = stratified_sample(d['pool'], seed, identity_map=identity_map)
+    company_ids = [(identity_map or {}).get(c, c) for c in companies]
+    print(f"{channel} seed={seed} selected={len(companies)} unique_companies={len(set(company_ids))}")
     for i, c in enumerate(companies, 1):
-        print(f"  {i:02d}. {c}")
+        print(f"  {i:02d}. {c}  ({company_ids[i-1]})")
 
 
 if __name__ == '__main__':

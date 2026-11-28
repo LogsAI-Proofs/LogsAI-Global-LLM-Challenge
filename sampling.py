@@ -35,41 +35,55 @@ def _ordered_sectors(pool: dict) -> list:
     return ordered + extras
 
 
-def _supplement_candidate(pool, selected, seed):
+def _supplement_candidate(pool, selected, seed, identity_map=None):
     """从全部未选企业中再抽 1 家，作为第 12 家补充企业。
 
     使用独立 RNG（seed + '|supplement'），与 11 个行业代表的抽取互不干扰；
     候选按行业固定顺序 + 代码字典序排列，保证可复现。
+    identity_map: ticker → CIK；同一 CIK 的普通股/优先股/权证视为同一企业，
+    补充抽取时排除已选 CIK。
     """
+    selected_ids = {(identity_map or {}).get(c, c) for c in selected}
     items = []
     for industry in _ordered_sectors(pool):
         for code in sorted(str(c) for c in pool[industry]):
-            if code not in selected:
-                items.append((industry, code))
+            if code in selected:
+                continue
+            if identity_map and identity_map.get(code, code) in selected_ids:
+                continue
+            items.append((industry, code))
     if not items:
         return None
     rng = random.Random(hashlib.sha256(f"{seed}|supplement".encode('utf-8')).hexdigest())
     return items[rng.randrange(len(items))][1]
 
 
-def stratified_sample(pool, seed, include_supplement=True):
+def stratified_sample(pool, seed, include_supplement=True, identity_map=None):
     """分层抽样：11 个 GICS 行业各抽 1 家，再抽 1 家补充企业，共 12 家。
 
     用 sha256(seed) 初始化随机数发生器，保证可复现。
     行业按 GICS_SECTOR_ORDER 固定顺序；候选先按代码字典序排序，
     再抽样——保证同一 seed + 同一池快照的输出完全一致。
 
-    第 12 家是补充抽取：从全部未选企业中再抽 1 家，不要求来自第 12 个分类。
+    identity_map: ticker → CIK。同一 CIK 的普通股/优先股/权证视为同一企业，
+    只占一个名额；财报口径相同。
     """
     rng = random.Random(hashlib.sha256(str(seed).encode('utf-8')).hexdigest())
     selected = []
+    selected_ids = set()
     for industry in _ordered_sectors(pool):
         candidates = sorted(str(c) for c in pool[industry])
+        if identity_map:
+            candidates = [c for c in candidates if identity_map.get(c, c) not in selected_ids]
+        if not candidates:
+            continue
         idx = rng.randrange(len(candidates))
-        selected.append(candidates[idx])
+        pick = candidates[idx]
+        selected.append(pick)
+        selected_ids.add((identity_map or {}).get(pick, pick))
 
     if include_supplement:
-        supplement = _supplement_candidate(pool, set(selected), seed)
+        supplement = _supplement_candidate(pool, set(selected), seed, identity_map)
         if supplement is not None:
             selected.append(supplement)
     return selected

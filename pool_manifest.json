@@ -1,13 +1,13 @@
 {
-  "version": "1.0",
-  "frozen_at": "2026-11-27",
+  "version": "1.1",
+  "frozen_at": "2026-11-28",
   "rule": {
     "cn": "全部 A 股，申万一级行业→GICS；11 个 Sector",
-    "us": "SIC 可映射 GICS + 有 SEC 10-K；20-F/40-F、无 SIC、无 10-K 不纳入"
+    "us": "SIC 可映射 GICS + 有 SEC 10-K；20-F/40-F、无 SIC、无 10-K 不纳入；同一 CIK 只占一个名额"
   },
   "algorithm": {
     "file": "sampling.py",
-    "sha256": "5e36b40208398691a93703f1c4bde9767bf4a0e2ed6f1df164b054a2b7b04539"
+    "sha256": "bd8089843a3220f016ad0d589a99aa7f7811dcfae8d111e7d072baa60031080d"
   },
   "gics_mapping": {
     "file": "gics_mapping.json",
@@ -18,6 +18,7 @@
       "file": "pool_cn.json",
       "total": 5223,
       "pool_sha256": "43703bcc8012a10a468fa2aaebabec6f18af0d1db5787cdb4ea123e009afa6ae",
+      "ticker_cik_sha256": "",
       "sector_counts": {
         "能源": 80,
         "材料": 670,
@@ -36,6 +37,7 @@
       "file": "pool_us.json",
       "total": 6506,
       "pool_sha256": "f117a767a0dce0b6bb1183deae54cdcfecd907c76b7fd47a71ee3022d06637a2",
+      "ticker_cik_sha256": "1fdaaa329ced6d8dda70a83e7cfd571bcc59f07ee691e4574a28db152c16c141",
       "sector_counts": {
         "能源": 243,
         "材料": 909,

@@ -43,9 +43,13 @@ def draw(channel: str, draw_date: str, allow_mismatch: bool):
         print(f"[WARN] {msg}，允许 mismatch 继续（仅测试用）")
 
     pool_doc = load_pool(channel)
-    companies = stratified_sample(pool_doc['pool'], seed['seed_string'])
+    identity_map = pool_doc.get('ticker_cik') if channel == 'us' else None
+    companies = stratified_sample(pool_doc['pool'], seed['seed_string'], identity_map=identity_map)
+    company_ids = [(identity_map or {}).get(c, c) for c in companies]
     if len(companies) != 12 or len(set(companies)) != 12:
         raise SystemExit(f"[FAIL] {channel} 选出 {len(companies)} 家，非 12 家唯一")
+    if len(set(company_ids)) != 12:
+        raise SystemExit(f"[FAIL] {channel} 选出 {len(set(company_ids))} 个唯一 CIK，非 12")
 
     code2sec = {c: s for s, arr in pool_doc['pool'].items() for c in arr}
     sectors = [code2sec.get(c) for c in companies[:11]]
@@ -73,6 +77,8 @@ def draw(channel: str, draw_date: str, allow_mismatch: bool):
         },
         'algorithm': {'file': 'sampling.py', 'sha256': get_algorithm_sha256()},
         'companies': companies,
+        'company_ids': company_ids,
+        'unique_companies': len(set(company_ids)),
         'sectors_first_11': sectors,
         'list_sha256': canonical_sha(companies),
         'created_at': datetime.now(timezone.utc).isoformat(),

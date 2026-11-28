@@ -7,7 +7,7 @@
 | 文件 | 说明 |
 |---|---|
 | `pool_cn.json` | A 股行业池快照：5,223 家，11 个 GICS Sector |
-| `pool_us.json` | 美股行业池快照：6,506 家，仅纳入 SEC 10-K 公司 |
+| `pool_us.json` | 美股行业池快照：6,506 家，仅纳入 SEC 10-K 公司；含 `ticker_cik`，抽签按 CIK 去重 |
 | `pool_manifest.json` | 冻结清单：算法哈希、GICS 哈希、两份池哈希 |
 | `sampling.py` | 盲抽算法：11 个分类各 1 家 + 补充抽取 1 家 = 12 家 |
 | `verify_pool.py` | 公开校验/复算脚本 |
